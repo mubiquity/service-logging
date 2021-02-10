@@ -236,6 +236,8 @@ pub struct CoralogixConfig {
     pub application_name: &'static str,
     /// URL prefix for service invocation, e.g. `https://api.coralogix.con/api/v1/logs`
     pub endpoint: &'static str,
+    /// Subsystem name added to all log entries.
+    pub subsystem_name: &'static str
 }
 
 /// Implementation of Logger for [Coralogix](https://coralogix.com/)
@@ -267,12 +269,12 @@ impl Logger for CoralogixLogger {
     /// May return error if there was a problem sending.
     async fn send(
         &self,
-        sub: &'_ str,
+        _sub: &'_ str,
         entries: Vec<LogEntry>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         if !entries.is_empty() {
             let msg = CxLogMsg {
-                subsystem_name: sub,
+                subsystem_name: self.config.subsystem_name,
                 log_entries: entries,
                 private_key: self.config.api_key,
                 application_name: self.config.application_name,
